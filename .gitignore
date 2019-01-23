@@ -1,3 +1,4 @@
 *__pycache__/
 *.json
 settings/settings.py
+\.idea/workspace\.xml
