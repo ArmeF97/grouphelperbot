@@ -807,7 +807,7 @@ def handle(msg):
             if settings.Moderation.mustHaveUsername:
                 if from_username == "":
                     bot.sendMessage(group,
-                                    "🌐 " + from_firstName + ", please, set an <b>username</b> in Telegram Settings",
+                                    "🌐 " + from_firstName + ", perfavore, imposta un <b>username</b> nelle impostazioni",
                                     parse_mode="HTML", reply_to_message_id=msgId)
 
             # Detect spam from a Telegram Link
@@ -834,7 +834,7 @@ def handle(msg):
                                                       createUserString(bot.getMe()['id'], bot.getMe()['first_name'],
                                                                        ""), _("str_max_warns")]))
 
-            # Scan Sended Files
+            # Scan Sent Files
             if msgType == "document" and not isGif(msg):
                 if settings.Moderation.scanSendedFiles:
                     message = bot.sendMessage(group, _("grp_scan_file"), parse_mode="HTML", reply_to_message_id=msgId)
@@ -858,7 +858,7 @@ def handle(msg):
                     else:
                         bot.deleteMessage((group, message['message_id']))
 
-            # Detect spam from a fowarded message
+            # Detect spam from a forwarded message
             if settings.Moderation.forwardSpamDetect:
                 try:
                     forwarded_from = msg['forward_from_chat']
