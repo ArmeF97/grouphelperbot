@@ -169,19 +169,19 @@ def handle(msg):
                 if settings.Moderation.showWelcomeMessage:
                     data = settings.Messages.welcome
                     if data != "":
-                        new_member = msg['new_chat_members'][0]
-                        from_firstName = new_member['first_name']
-                        from_username = new_member['username']
-                        try:
-                            from_lastName = new_member['last_name']
-                        except:
-                            from_lastName = ""
+                        for new_member in msg['new_chat_members']:
+                            from_firstName = new_member['first_name']
+                            from_username = new_member['username']
+                            try:
+                                from_lastName = new_member['last_name']
+                            except:
+                                from_lastName = ""
 
-                        data = data.replace('{{name}}', from_firstName)
-                        data = data.replace('{{surname}}', from_lastName)
-                        data = data.replace('{{username}}', from_username)
-                        data = data.replace('{{group_name}}', bot.getChat(group)['title'])
-                        bot.sendMessage(group, data, parse_mode="HTML", disable_web_page_preview=True)
+                            data = data.replace('{{name}}', from_firstName)
+                            data = data.replace('{{surname}}', from_lastName)
+                            data = data.replace('{{username}}', from_username)
+                            data = data.replace('{{group_name}}', bot.getChat(group)['title'])
+                            bot.sendMessage(group, data, parse_mode="HTML", disable_web_page_preview=True)
                 logStaff(_("log_new_user", [createUserString(from_id, from_firstName, from_lastName)]))
             return 0
 
