@@ -2,13 +2,21 @@
   <dictionary name="Arme">
     <words>
       <w>apikey</w>
+      <w>cmdtext</w>
+      <w>delwarn</w>
       <w>imgparse</w>
       <w>imposta</w>
       <w>impostazioni</w>
+      <w>kickinactive</w>
       <w>malware</w>
       <w>noreply</w>
       <w>perfavore</w>
+      <w>silenceoff</w>
+      <w>silenceon</w>
       <w>unban</w>
+      <w>unhelper</w>
+      <w>unmanager</w>
+      <w>unmod</w>
       <w>unmute</w>
       <w>unwarn</w>
       <w>whatsapp</w>

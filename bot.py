@@ -181,9 +181,11 @@ def handle(msg):
             if settings.Moderation.deleteCommands:
                 bot.deleteMessage((group, msgId))
 
+        status_from_id = getStatus(from_id)
+
         # Creator message
-        if getStatus(from_id) in ["creator"]:
-            if text.startswith("/cmd_helper" + " @"):
+        if status_from_id in ["creator"]:
+            if text.startswith("/helper @"):
                 text_split = text.split(" ", 2)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -193,7 +195,7 @@ def handle(msg):
                     logStaff(
                         _("log_new_helper", [selectedUser, createUserString(from_id, from_firstName, from_lastName)]))
 
-            elif text.startswith("/unhelper" + " @"):
+            elif text.startswith("/unhelper @"):
                 text_split = text.split(" ", 2)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -203,7 +205,7 @@ def handle(msg):
                     logStaff(
                         _("log_rem_helper", [selectedUser, createUserString(from_id, from_firstName, from_lastName)]))
 
-            elif text.startswith("/mod" + " @"):
+            elif text.startswith("/mod @"):
                 text_split = text.split(" ", 2)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -213,7 +215,7 @@ def handle(msg):
                     logStaff(_("log_new_moderator",
                                [selectedUser, createUserString(from_id, from_firstName, from_lastName)]))
 
-            elif text.startswith("/unmod" + " @"):
+            elif text.startswith("/unmod @"):
                 text_split = text.split(" ", 2)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -223,7 +225,7 @@ def handle(msg):
                     logStaff(_("log_rem_moderator",
                                [selectedUser, createUserString(from_id, from_firstName, from_lastName)]))
 
-            elif text.startswith("/manager" + " @"):
+            elif text.startswith("/manager @"):
                 text_split = text.split(" ", 2)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -233,7 +235,7 @@ def handle(msg):
                     logStaff(
                         _("log_new_manager", [selectedUser, createUserString(from_id, from_firstName, from_lastName)]))
 
-            elif text.startswith("/unmanager" + " @"):
+            elif text.startswith("/unmanager @"):
                 text_split = text.split(" ", 2)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -308,8 +310,8 @@ def handle(msg):
                         forwardStaff(reply_msgId)
 
         # Creator or Admin message
-        if getStatus(from_id) in ["creator", "admin"]:
-            if text.startswith("/tell" + " "):
+        if status_from_id in ["creator", "admin"]:
+            if text.startswith("/tell "):
                 text_split = text.split(" ", 1)
                 bot.sendMessage(group, text_split[1], parse_mode="HTML", reply_to_message_id=reply_msgId)
 
@@ -317,7 +319,7 @@ def handle(msg):
                 reloadAdmins()
                 bot.sendMessage(group, _("bot_reload"), parse_mode="HTML")
 
-            elif text.startswith("/kickinactive" + " "):
+            elif text.startswith("/kickinactive "):
                 text_split = text.split(" ")
                 days = int(text_split[1])
                 currentTime = int(time.time())
@@ -335,8 +337,8 @@ def handle(msg):
                 bot.unpinChatMessage(group)
 
         # Creator or Admin or Moderator message
-        if getStatus(from_id) in ["creator", "admin", "moderator"]:
-            if text.startswith("/warn" + " @"):
+        if status_from_id in ["creator", "admin", "moderator"]:
+            if text.startswith("/warn @"):
                 text_split = text.split(" ", 2)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -366,7 +368,7 @@ def handle(msg):
                                    [selectedUser, createUserString(bot.getMe()['id'], bot.getMe()['first_name'], ""),
                                     _("str_max_warns")]))
 
-            elif text.startswith("/delwarn" + " @"):
+            elif text.startswith("/delwarn @"):
                 bot.deleteMessage((group, reply_msgId))
                 text_split = text.split(" ", 2)
                 selectedUser = text_split[1]
@@ -398,7 +400,7 @@ def handle(msg):
                                    [selectedUser, createUserString(bot.getMe()['id'], bot.getMe()['first_name'], ""),
                                     _("str_max_warns")]))
 
-            elif text.startswith("/mute" + " @"):
+            elif text.startswith("/mute @"):
                 text_split = text.split(" ", 1)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -415,12 +417,12 @@ def handle(msg):
                         logStaff(_("log_mute_default",
                                    [selectedUser, createUserString(from_id, from_firstName, from_lastName)]))
 
-            elif text.startswith("/kick" + " @"):
+            elif text.startswith("/kick @"):
                 text_split = text.split(" ", 2)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
                 if not ((getStatus(selectedUserData) == "creator") or (getStatus(selectedUserData) == "admin")):
-                    if bot.getChatMember(group, selectedUserData)['status'] != "kicked":
+                    if bot.getChatMember(group, selectedUserData)['status_from_id'] != "kicked":
                         bot.kickChatMember(group, selectedUserData)
                         time.sleep(0.5)
                         bot.unbanChatMember(group, selectedUserData)
@@ -434,7 +436,7 @@ def handle(msg):
                         logStaff(_("log_kick_no_reason",
                                    [selectedUser, createUserString(from_id, from_firstName, from_lastName)]))
 
-            elif text.startswith("/ban" + " @"):
+            elif text.startswith("/ban @"):
                 text_split = text.split(" ", 2)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -451,7 +453,7 @@ def handle(msg):
                         logStaff(_("log_ban_no_reason",
                                    [selectedUser, createUserString(from_id, from_firstName, from_lastName)]))
 
-            elif text.startswith("/unban" + " @"):
+            elif text.startswith("/unban @"):
                 text_split = text.split(" ", 1)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -459,7 +461,7 @@ def handle(msg):
                 bot.sendMessage(group, _("grp_unban", [selectedUser]))
                 logStaff(_("log_unban", [selectedUser, createUserString(from_id, from_firstName, from_lastName)]))
 
-            elif text.startswith("/unwarn" + " @"):
+            elif text.startswith("/unwarn @"):
                 text_split = text.split(" ", 1)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -470,7 +472,7 @@ def handle(msg):
                     logStaff(_("log_unwarn", [selectedUser, createUserString(from_id, from_firstName, from_lastName),
                                               str(previousWarns - 1), str(settings.Moderation.maxWarns)]))
 
-            elif text.startswith("/unmute" + " @"):
+            elif text.startswith("/unmute @"):
                 text_split = text.split(" ", 1)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -479,7 +481,7 @@ def handle(msg):
                 bot.sendMessage(group, _("grp_unmute", [selectedUser]))
                 logStaff(_("log_unmute", [selectedUser, createUserString(from_id, from_firstName, from_lastName)]))
 
-            elif text.startswith("/info" + " @"):
+            elif text.startswith("/info @"):
                 text_split = text.split(" ", 1)
                 selectedUser = text_split[1]
                 selectedUserData = db_users.search(where('username') == selectedUser.replace("@", ""))[0]['chatId']
@@ -604,7 +606,7 @@ def handle(msg):
 
                 elif text.startswith("/kick"):
                     if not ((getStatus(reply_fromId) == "creator") or (getStatus(reply_fromId) == "admin")):
-                        if bot.getChatMember(group, reply_fromId)['status'] != "kicked":
+                        if bot.getChatMember(group, reply_fromId)['status_from_id'] != "kicked":
                             bot.kickChatMember(group, reply_fromId)
                             time.sleep(0.5)
                             bot.unbanChatMember(group, reply_fromId)
@@ -684,9 +686,9 @@ def handle(msg):
                                               str(db_users.search(where('chatId') == reply_fromId)[0]['warns'])]), "HTML")
 
         # Creator or Admin or Moderator or Manager message
-        if getStatus(from_id) in ["creator", "admin", "moderator", "manager"]:
+        if status_from_id in ["creator", "admin", "moderator", "manager"]:
             if isReply:
-                if text == _("cmd_del"):
+                if text == "/del":
                     bot.deleteMessage((group, reply_msgId))
 
         # Any user message
@@ -706,7 +708,7 @@ def handle(msg):
         elif cmdtext == "/staff":
             staff = {"founders": "", "admins": "", "moderators": "", "managers": "", "helpers": ""}
 
-            for x in [x["chatId"] for x in db_admins.search(where('status') == "creator")]:
+            for x in [x["chatId"] for x in db_admins.search(where('status_from_id') == "creator")]:
                 try:
                     staff['founders'] += "\n        " + createUserString(x, bot.getChatMember(group, x)['user'][
                         'first_name'], bot.getChatMember(group, x)['user']['last_name'])
@@ -714,7 +716,7 @@ def handle(msg):
                     staff['founders'] += "\n        " + createUserString(x, bot.getChatMember(group, x)['user'][
                         'first_name'], "")
 
-            for x in [x["chatId"] for x in db_admins.search(where('status') == "admin")]:
+            for x in [x["chatId"] for x in db_admins.search(where('status_from_id') == "admin")]:
                 try:
                     staff['admins'] += "\n        " + createUserString(x, bot.getChatMember(group, x)['user'][
                         'first_name'], bot.getChatMember(group, x)['user']['last_name'])
@@ -722,7 +724,7 @@ def handle(msg):
                     staff['admins'] += "\n        " + createUserString(x, bot.getChatMember(group, x)['user'][
                         'first_name'], "")
 
-            for x in [x["chatId"] for x in db_admins.search(where('status') == "moderator")]:
+            for x in [x["chatId"] for x in db_admins.search(where('status_from_id') == "moderator")]:
                 try:
                     staff['moderators'] += "\n        " + createUserString(x, bot.getChatMember(group, x)['user'][
                         'first_name'], bot.getChatMember(group, x)['user']['last_name'])
@@ -730,7 +732,7 @@ def handle(msg):
                     staff['moderators'] += "\n        " + createUserString(x, bot.getChatMember(group, x)['user'][
                         'first_name'], "")
 
-            for x in [x["chatId"] for x in db_admins.search(where('status') == "manager")]:
+            for x in [x["chatId"] for x in db_admins.search(where('status_from_id') == "manager")]:
                 try:
                     staff['managers'] += "\n        " + createUserString(x, bot.getChatMember(group, x)['user'][
                         'first_name'], bot.getChatMember(group, x)['user']['last_name'])
@@ -738,7 +740,7 @@ def handle(msg):
                     staff['managers'] += "\n        " + createUserString(x, bot.getChatMember(group, x)['user'][
                         'first_name'], "")
 
-            for x in [x["chatId"] for x in db_admins.search(where('status') == "helper")]:
+            for x in [x["chatId"] for x in db_admins.search(where('status_from_id') == "helper")]:
                 try:
                     staff['helpers'] += "\n        " + createUserString(x, bot.getChatMember(group, x)['user'][
                         'first_name'], bot.getChatMember(group, x)['user']['last_name'])
@@ -767,7 +769,7 @@ def handle(msg):
 
 
         # Only Normal User Messages
-        elif getStatus(from_id) == "user":
+        elif status_from_id == "user":
 
             # Global Silence Setting
             if settings.Moderation.globalSilenceActive:
